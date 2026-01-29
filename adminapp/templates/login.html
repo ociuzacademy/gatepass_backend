@@ -1,0 +1,177 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PASSIFY | Login</title>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url("{% static 'images/c8.jpg' %}") no-repeat center center/cover;
+      font-family: 'Poppins', sans-serif;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 0;
+    }
+
+    /* LOGO */
+    .logo-wrapper {
+      position: absolute;
+      top: 10%;
+      width: 100%;
+      text-align: center;
+      z-index: 2;
+    }
+
+    .logo-text {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: 6px;
+      color: #ffffff;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 10px rgba(255, 64, 129, 0.6),
+        0 0 25px rgba(255, 64, 129, 0.4);
+    }
+
+    /* GLASS LOGIN BOX */
+    .glass-box {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(14px);
+      border-radius: 20px;
+      padding: 30px;
+      width: 350px;
+      text-align: center;
+      color: #fff;
+    }
+
+    .glass-box h2 {
+      margin-bottom: 20px;
+      font-weight: 400;
+      opacity: 0.9;
+    }
+
+    .glass-box input,
+    .glass-box select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.25);
+      color: #1c1b1b;
+      outline: none;
+    }
+
+    .glass-box input::placeholder {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .glass-box button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #ff4081;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .glass-box button:hover {
+      background: #e91e63;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGO -->
+  <div class="logo-wrapper">
+    <h1 class="logo-text">PASSIFY</h1>
+  </div>
+
+  <!-- LOGIN BOX -->
+  <div class="glass-box">
+    <h2>Login</h2>
+    <form method="post">
+      {% csrf_token %}
+
+      <select name="role" required onchange="toggleFields(this.value)">
+        <option value="">-- Select Role --</option>
+        <option value="admin">Admin</option>
+        <option value="hod">HOD</option>
+      </select>
+
+      <div id="admin-fields" style="display:none;">
+        <input type="email" name="admin_email" placeholder="Admin Email">
+        <input type="password" name="password" placeholder="Password">
+      </div>
+
+      <div id="hod-fields" style="display:none;">
+        <input type="email" name="hod_email" placeholder="HOD Email">
+        <input type="text" name="hod_id" placeholder="HOD ID">
+      </div>
+
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <script>
+    function toggleFields(role) {
+      document.getElementById("admin-fields").style.display =
+        (role === "admin") ? "block" : "none";
+
+      document.getElementById("hod-fields").style.display =
+        (role === "hod") ? "block" : "none";
+
+      document
+        .querySelectorAll("#admin-fields input, #hod-fields input")
+        .forEach(input => input.required = false);
+
+      if (role === "admin") {
+        document
+          .querySelectorAll("#admin-fields input")
+          .forEach(input => {
+            input.required = true;
+            input.value = "";
+          });
+      }
+
+      if (role === "hod") {
+        document
+          .querySelectorAll("#hod-fields input")
+          .forEach(input => {
+            input.required = true;
+            input.value = "";
+          });
+      }
+    }
+
+    window.onload = function () {
+      const roleSelect = document.querySelector('select[name="role"]');
+      toggleFields(roleSelect.value);
+    };
+  </script>
+
+</body>
+
+</html>

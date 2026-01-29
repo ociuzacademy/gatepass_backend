@@ -1,0 +1,132 @@
+{% extends "adminapp/index.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="mb-3 text-center">
+        {% if edit_data %} Edit Guard {% else %} Add Guard {% endif %}
+    </h2>
+
+    <!-- ADD / EDIT FORM -->
+    <form method="POST" enctype="multipart/form-data" class="card p-4">
+        {% csrf_token %}
+
+        {% if edit_data %}
+        <input type="hidden" name="edit_id" value="{{ edit_data.id }}">
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Guard ID</label>
+                <input type="text" name="guard_id" class="form-control"
+                       value="{{ edit_data.guard_id|default:'' }}" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Name</label>
+                <input type="text" name="name" class="form-control"
+                       value="{{ edit_data.name|default:'' }}" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Gender</label>
+                <select name="gender" class="form-control" required>
+                    <option value="">Select</option>
+                    <option value="Male" {% if edit_data.gender == "Male" %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if edit_data.gender == "Female" %}selected{% endif %}>Female</option>
+                    <option value="Other" {% if edit_data.gender == "Other" %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Phone</label>
+                <input type="text" name="phone" class="form-control"
+                       value="{{ edit_data.phone|default:'' }}" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control"
+                       value="{{ edit_data.email|default:'' }}" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Gate Location</label>
+                <input type="text" name="gate_location" class="form-control"
+                       value="{{ edit_data.gate_location|default:'' }}" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label>Photo</label>
+                <input type="file" name="photo" class="form-control">
+                
+                {% if edit_data.photo %}
+                    <img src="{{ edit_data.photo.url }}" width="80" class="mt-2">
+                {% endif %}
+            </div>
+        </div>
+
+        <button class="btn btn-primary mt-3">
+            {% if edit_data %} Update {% else %} Add {% endif %}
+        </button>
+
+        {% if edit_data %}
+        <a href="{% url 'manage_guard' %}" class="btn btn-secondary mt-3">Cancel Edit</a>
+        {% endif %}
+    </form>
+
+    <!-- LIST TABLE -->
+    <h3 class="mt-5">Guard List</h3>
+    <table class="table table-bordered mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Photo</th>
+                <th>Guard ID</th>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Gate Location</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for guard in guards %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+
+                <td>
+                    {% if guard.photo %}
+                    <img src="{{ guard.photo.url }}" width="50">
+                    {% else %}
+                    No Photo
+                    {% endif %}
+                </td>
+
+                <td>{{ guard.guard_id }}</td>
+                <td>{{ guard.name }}</td>
+                <td>{{ guard.gender }}</td>
+                <td>{{ guard.phone }}</td>
+                <td>{{ guard.email }}</td>
+                <td>{{ guard.gate_location }}</td>
+
+                <td>
+                    <a href="?edit={{ guard.id }}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="?delete={{ guard.id }}" class="btn btn-sm btn-danger"
+                       onclick="return confirm('Delete this guard?');">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center">No guards added yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

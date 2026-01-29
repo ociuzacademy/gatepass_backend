@@ -1,0 +1,83 @@
+{% extends "hodapp/hod_index.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Add Tutor</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label>Name</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Tutor ID</label>
+            <input type="text" name="tutor_id" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Department</label>
+            <select name="department" class="form-control" required>
+                {% for dept in departments %}
+                <option value="{{ dept.id }}">{{ dept.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Course</label>
+            <select name="course" class="form-control" required>
+                {% for course in courses %}
+                <option value="{{ course.id }}">{{ course.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+    <label>Year</label>
+    <select name="year" class="form-control" required>
+    <option value="1">First Year</option>
+    <option value="2">Second Year</option>
+    <option value="3">Third Year</option>
+    <option value="4">Fourth Year</option>
+</select>
+
+</div>
+
+<div class="mb-3">
+    <label>Batch (e.g., 2021-2025)</label>
+    <input type="text" name="batch" class="form-control" placeholder="2021-2025" required>
+</div>
+
+        <div class="mb-3">
+            <label>Phone Number</label>
+            <input type="text" name="phone" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>Gender</label>
+            <select name="gender" class="form-control">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Experience (Years)</label>
+            <input type="number" name="experience" class="form-control" min="0">
+        </div>
+
+        <div class="mb-3">
+            <label>Image</label>
+            <input type="file" name="image" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Tutor</button>
+    </form>
+</div>
+{% endblock %}

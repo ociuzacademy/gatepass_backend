@@ -1,0 +1,63 @@
+{% extends "adminapp/index.html" %}
+{% block content %}
+<br>
+<br>
+
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h2 class="mb-4">College Details</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="name" class="form-label">College Name</label>
+                <input type="text" name="name" id="name" class="form-control"
+                             value="{{ college.name|default_if_none:'' }}" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="latitude" class="form-label">Latitude</label>
+                <input type="number" step="any" name="langitude" id="latitude" class="form-control"
+                             value="{{ college.langitude|default_if_none:'' }}" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="longitude" class="form-label">Longitude</label>
+                <input type="number" step="any" name="lotitude" id="longitude" class="form-control"
+                             value="{{ college.lotitude|default_if_none:'' }}" required>
+            </div>
+
+            <!-- Get Location Button -->
+            <button type="button" class="btn btn-secondary mb-3" onclick="getLocation()"> Get Current Location</button>
+            
+            <div id="status" class="text-muted mb-3"></div>
+            
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function getLocation() {
+    const status = document.getElementById("status");
+    if (!navigator.geolocation) {
+        status.innerText = "Geolocation is not supported by your browser.";
+        return;
+    }
+
+    status.innerText = "Fetching location...";
+
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            document.getElementById("latitude").value = pos.coords.latitude.toFixed(6);
+            document.getElementById("longitude").value = pos.coords.longitude.toFixed(6);
+            status.innerText = "Location fetched ✔";
+        },
+        (err) => {
+            status.innerText = "Error: " + err.message;
+        }
+    );
+}
+</script>
+{% endblock %}

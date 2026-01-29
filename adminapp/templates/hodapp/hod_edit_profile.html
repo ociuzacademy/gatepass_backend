@@ -1,0 +1,58 @@
+{% extends 'hodapp/hod_index.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Edit HOD Profile</h2>
+
+    <div class="card shadow-sm p-4">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" id="name" name="name" value="{{ hod.name }}" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" value="{{ hod.email }}" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="department" class="form-label">Department</label>
+                    <select id="department" name="department" class="form-select" required>
+                        {% for dept in departments %}
+                            <option value="{{ dept.id }}" {% if hod.department.id == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="text" id="phone" name="phone" value="{{ hod.phone_number }}" class="form-control">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="gender" class="form-label">Gender</label>
+                <select id="gender" name="gender" class="form-select" required>
+                    <option value="Male" {% if hod.gender == "Male" %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if hod.gender == "Female" %}selected{% endif %}>Female</option>
+                    <option value="Other" {% if hod.gender == "Other" %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="image" class="form-label">Profile Image</label>
+                <input type="file" id="image" name="image" class="form-control">
+                {% if hod.image %}
+                    <img src="{{ hod.image.url }}" alt="Current Image" class="img-thumbnail mt-2" style="max-width: 150px;">
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-success">Update Profile</button>
+            <a href="{% url 'hod_profile' hod.id %}" class="btn btn-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

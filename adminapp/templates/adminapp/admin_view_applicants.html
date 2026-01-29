@@ -1,0 +1,127 @@
+{% extends 'adminapp/index.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Job Applicants</h2>
+
+    <!-- Filters -->
+    <div class="mb-3">
+
+        <!-- Department Filter -->
+        <div class="btn-group dropdown">
+            <button class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown">Department</button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'admin_view_applicants' %}">All Departments</a></li>
+                {% for dept in departments %}
+                <li><a class="dropdown-item" href="?department={{ dept.id }}">{{ dept.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Course Filter -->
+        <div class="btn-group dropdown">
+            <button class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">Course</button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'admin_view_applicants' %}">All Courses</a></li>
+                {% for course in courses %}
+                <li><a class="dropdown-item" href="?course={{ course.id }}">{{ course.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Tutor Filter -->
+        <div class="btn-group dropdown">
+            <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">Tutor</button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'admin_view_applicants' %}">All Tutors</a></li>
+                {% for tutor in tutors %}
+                <li><a class="dropdown-item" href="?tutor={{ tutor.id }}">{{ tutor.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Company Filter -->
+        <div class="btn-group dropdown">
+            <button class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">Company</button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'admin_view_applicants' %}">All Companies</a></li>
+                {% for comp in companies %}
+                <li><a class="dropdown-item" href="?company={{ comp.id }}">{{ comp.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <a href="{% url 'admin_view_applicants' %}" class="btn btn-secondary">Reset Filters</a>
+    </div>
+
+    <!-- Applicants Table -->
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>SI No</th>
+                <th>Student</th>
+                <th>Job Title</th>
+                <th>Tutor</th>
+                <th>Course</th>
+                <th>Department</th>
+                <th>Company</th>
+                <th>Status</th>
+                <th>Applied At</th>
+                <th>Resume</th>
+                
+                <!-- <th>Actions</th> -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ app.student.name }}</td>
+                <td>{{ app.job.title }}</td>
+                <td>{{ app.student.tutor.name }}</td>
+                <td>{{ app.student.course.name }}</td>
+                <td>{{ app.student.department.name }}</td>
+                <td>{{ app.job.company.name }}</td>
+                <td>{{ app.status }}</td>
+                <td>{{ app.applied_at }}</td>
+                <td>
+                    {% if app.resume %}
+                    <a href="{{ app.resume.url }}" target="_blank" class="btn btn-sm btn-primary">View</a>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <!-- <td> -->
+                    
+
+                    <!-- Approve Button -->
+                    <!-- {% if app.status != "Company Approved" %}
+                    <form method="POST" action="{% url 'update_application_status' app.id %}"
+                        style="display:inline-block;">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="Company Approved">
+                        <button class="btn btn-sm btn-success mt-1">Approve</button>
+                    </form>
+                    {% endif %} -->
+
+                    <!-- Reject Button -->
+                    <!-- {% if app.status != "Company Rejected" %}
+                    <form method="POST" action="{% url 'update_application_status' app.id %}"
+                        style="display:inline-block;">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="Company Rejected">
+                        <button class="btn btn-sm btn-danger mt-1">Reject</button>
+                    </form>
+                    {% endif %}
+                </td> -->
+
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10" class="text-center">No applicants found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

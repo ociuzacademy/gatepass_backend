@@ -1,0 +1,48 @@
+{% extends "adminapp/index.html" %}
+{% block content %}
+<br>
+<br>
+
+<div class="container mt-5">
+  <h3 class="mb-4">Edit HOD</h3>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <input type="text" name="name" value="{{ hod.name }}" class="form-control" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <input type="email" name="email" value="{{ hod.email }}" class="form-control" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <input type="text" name="hod_id" value="{{ hod.hod_id }}" class="form-control" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <select name="gender" class="form-select" required>
+          <option {% if hod.gender == 'Male' %}selected{% endif %}>Male</option>
+          <option {% if hod.gender == 'Female' %}selected{% endif %}>Female</option>
+          <option {% if hod.gender == 'Other' %}selected{% endif %}>Other</option>
+        </select>
+      </div>
+      <div class="col-md-6 mb-3">
+        <input type="text" name="phone" value="{{ hod.phone_number }}" class="form-control" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <select name="department" class="form-select" required>
+          {% for dept in departments %}
+            <option value="{{ dept.id }}" {% if dept.id == hod.department.id %}selected{% endif %}>{{ dept.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6 mb-3">
+        <input type="file" name="image" class="form-control">
+        {% if hod.image %}
+          <img src="{{ hod.image.url }}" width="50" height="50" class="mt-2 rounded-circle">
+        {% endif %}
+      </div>
+    </div>
+    <button type="submit" class="btn btn-success">Update HOD</button>
+    <a href="{% url 'list_hods' %}" class="btn btn-secondary">Back</a>
+  </form>
+</div>
+{% endblock %}

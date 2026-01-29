@@ -1,0 +1,49 @@
+{% extends "adminapp/index.html" %}
+{% block content %}
+<br>
+<br>
+
+<div class="container mt-5">
+  <h3 class="mb-4">List of HODs</h3>
+  <table class="table table-bordered table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>Image</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>HOD ID</th>
+        <th>Gender</th>
+        <th>Phone</th>
+        <th>Department</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for hod in hods %}
+      <tr>
+        <td>
+          {% if hod.image %}
+            <img src="{{ hod.image.url }}" width="50" height="50" class="rounded-circle">
+          {% else %}
+            <span class="text-muted">No Image</span>
+          {% endif %}
+        </td>
+        <td>{{ hod.name }}</td>
+        <td>{{ hod.email }}</td>
+        <td>{{ hod.hod_id }}</td>
+        <td>{{ hod.gender }}</td>
+        <td>{{ hod.phone_number }}</td>
+        <td>{{ hod.department.name }}</td>
+        <td>
+          <a href="{% url 'edit_hod' hod.id %}" class="btn btn-sm btn-primary">Edit</a>
+          <a href="{% url 'delete_hod' hod.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this HOD?');">Delete</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="text-center">No HODs found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{% url 'add_hod' %}" class="btn btn-success">Add New HOD</a>
+</div>
+{% endblock %}

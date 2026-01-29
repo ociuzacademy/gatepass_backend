@@ -1,0 +1,28 @@
+{% extends 'hodapp/hod_index.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">HOD Profile</h2>
+
+    <div class="card shadow-sm p-4">
+        <div class="row">
+            <div class="col-md-4 text-center">
+                {% if hod.image %}
+                    <img src="{{ hod.image.url }}" alt="HOD Image" class="img-fluid rounded-circle mb-3" style="max-width: 200px;">
+                {% else %}
+                    <img src="https://via.placeholder.com/200" alt="No Image" class="img-fluid rounded-circle mb-3">
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <h4>{{ hod.name }}</h4>
+                <p><strong>Email:</strong> {{ hod.email }}</p>
+                <p><strong>Gender:</strong> {{ hod.gender }}</p>
+                <p><strong>Department:</strong> {{ hod.department.name }}</p>
+                <p><strong>Phone:</strong> {{ hod.phone_number|default:"Not Provided" }}</p>
+
+                <a href="{% url 'edit_hod_profile' hod.id %}" class="btn btn-primary mt-3">Edit Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

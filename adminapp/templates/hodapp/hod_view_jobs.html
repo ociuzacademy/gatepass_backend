@@ -1,0 +1,77 @@
+{% extends 'hodapp/hod_index.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Available Jobs</h2>
+
+    <!-- Filter buttons -->
+    <div class="mb-3">
+        <a href="{% url 'hod_view_jobs' %}" class="btn btn-secondary">All</a>
+
+        <!-- Department filter -->
+    
+<div class="btn-group dropdown">
+    <button type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        Department
+    </button>
+    <ul class="dropdown-menu">
+        {% for dept in departments %}
+            <li>
+                <a class="dropdown-item" href="?department={{ dept.id }}">{{ dept.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- Company filter -->
+<div class="btn-group dropdown">
+    <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        Company
+    </button>
+    <ul class="dropdown-menu">
+        {% for comp in companies %}
+            <li>
+                <a class="dropdown-item" href="?company={{ comp.id }}">{{ comp.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+    </div>
+
+    <!-- Jobs Table -->
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>SI No</th>
+                <th>Company</th>
+                <th>Title</th>
+                <th>Department</th>
+                <th>Place</th>
+                <th>Salary</th>
+                <th>Vacancy</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ job.company.name }}</td>
+                <td>{{ job.title }}</td>
+                <td>{{ job.department_id.name }}</td>
+                <td>{{ job.place }}</td>
+                <td>{{ job.salary }}</td>
+                <td>{{ job.vacancy }}</td>
+                <td>{{ job.date }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center">No jobs found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

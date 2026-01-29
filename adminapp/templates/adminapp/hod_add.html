@@ -1,0 +1,48 @@
+{% extends "adminapp/index.html" %}
+{% block content %}
+<br>
+<br>
+
+<div class="container mt-5">
+  <h3 class="mb-4">Add HOD</h3>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <input type="text" name="name" class="form-control" placeholder="Name" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <input type="email" name="email" class="form-control" placeholder="Email" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <input type="text" name="hod_id" class="form-control" placeholder="HOD ID" required>
+
+      </div>
+      <div class="col-md-6 mb-3">
+        <select name="gender" class="form-select" required>
+          <option selected disabled>Select Gender</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="col-md-6 mb-3">
+        <input type="text" name="phone" class="form-control" placeholder="Phone Number" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <select name="department" class="form-select" required>
+          <option selected disabled>Select Department</option>
+          {% for dept in departments %}
+            <option value="{{ dept.id }}">{{ dept.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6 mb-3">
+        <input type="file" name="image" class="form-control">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-success">Add HOD</button>
+    <a href="{% url 'list_hods' %}" class="btn btn-secondary">View All</a>
+  </form>
+</div>
+{% endblock %}

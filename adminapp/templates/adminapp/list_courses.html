@@ -1,0 +1,51 @@
+{% extends 'adminapp/index.html' %}
+{% block content %}
+<br>
+<br>
+
+<div class="container mt-5">
+  <h3 class="mb-4">All Courses</h3>
+
+  <form method="get" class="mb-4 d-flex gap-3">
+    <select name="department" class="form-select" style="max-width: 300px;">
+      <option value="">All Departments</option>
+      {% for dept in departments %}
+        <option value="{{ dept.id }}" {% if selected_dept == dept.id|stringformat:"s" %}selected{% endif %}>
+          {{ dept.name }}
+        </option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-outline-primary">Filter</button>
+    <a href="{% url 'list_courses' %}" class="btn btn-outline-secondary">Reset</a>
+  </form>
+
+  {% if courses %}
+    <table class="table table-striped table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Course Name</th>
+          <th>Department</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for course in courses %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ course.name }}</td>
+          <td>{{ course.department.name }}</td>
+          <td>
+            <a href="{% url 'edit_course' course.id %}" class="btn btn-sm btn-outline-success">Edit</a>
+            <a href="{% url 'delete_course' course.id %}" class="btn btn-sm btn-outline-danger"
+               onclick="return confirm('Are you sure you want to delete this course?');">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No courses available.</p>
+  {% endif %}
+</div>
+{% endblock %}

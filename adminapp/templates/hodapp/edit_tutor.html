@@ -1,0 +1,70 @@
+{% extends "hodapp/hod_index.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Edit Tutor</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label>Name</label>
+        <input type="text" name="name" class="form-control" value="{{ tutor.name }}" required><br>
+
+        <label>Email</label>
+        <input type="email" name="email" class="form-control" value="{{ tutor.email }}" required><br>
+
+        <label>Tutor ID</label>
+        <input type="text" name="tutor_id" class="form-control" value="{{ tutor.tutor_id }}" required><br>
+
+        <label>Department</label>
+        <select name="department" class="form-control">
+            {% for dept in departments %}
+            <option value="{{ dept.id }}" {% if dept.id == tutor.department.id %}selected{% endif %}>
+                {{ dept.name }}
+            </option>
+            {% endfor %}
+        </select><br>
+
+        <label>Course</label>
+        <select name="course" class="form-control">
+            {% for course in courses %}
+            <option value="{{ course.id }}" {% if course.id == tutor.course.id %}selected{% endif %}>
+                {{ course.name }}
+            </option>
+            {% endfor %}
+        </select><br>
+        <label>Year</label>
+<select name="year" class="form-control">
+    <option value="1" {% if tutor.year == 1 %}selected{% endif %}>First Year</option>
+    <option value="2" {% if tutor.year == 2 %}selected{% endif %}>Second Year</option>
+    <option value="3" {% if tutor.year == 3 %}selected{% endif %}>Third Year</option>
+    <option value="4" {% if tutor.year == 4 %}selected{% endif %}>Fourth Year</option>
+</select><br>
+
+
+        <label>Batch</label>
+        <input type="text" name="batch" class="form-control" value="{{ tutor.batch }}"><br>
+
+
+        <label>Phone</label>
+        <input type="text" name="phone_number" class="form-control" value="{{ tutor.phone_number }}"><br>
+
+        <label>Gender</label>
+        <select name="gender" class="form-control">
+            <option value="male" {% if tutor.gender ==  "male" %}selected{% endif %}>Male</option>
+            <option value="female" {% if tutor.gender == "female" %}selected{% endif %}>Female</option>
+            <option value="other" {% if tutor.gender == "other" %}selected{% endif %}>Other</option>
+        </select><br>
+
+        <label>Experience</label>
+        <input type="number" name="experience" class="form-control" value="{{ tutor.experience }}"><br>
+
+        <label>Image</label>
+        {% if tutor.image %}
+        <img src="{{ tutor.image.url }}" width="80"><br>
+        {% endif %}
+        <input type="file" name="image" class="form-control"><br>
+
+        <button type="submit" class="btn btn-success">Update</button>
+        <a href="{% url 'view_tutors' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'adminapp/index.html' %}
+{% block content %}
+<br>
+<br>
+
+<div class="container mt-5">
+  <h3>Edit Course</h3>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label>Course Name</label>
+      <input type="text" name="name" class="form-control" value="{{ course.name }}" required>
+    </div>
+    <div class="mb-3">
+      <label>Select Department</label>
+      <select name="department" class="form-select" required>
+        {% for dept in departments %}
+          <option value="{{ dept.id }}" {% if course.department.id == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a href="{% url 'list_courses' %}" class="btn btn-secondary">Back</a>
+  </form>
+</div>
+{% endblock %}
