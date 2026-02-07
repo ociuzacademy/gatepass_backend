@@ -85,7 +85,7 @@ urlpatterns = [
    # attendance update status today
    path("attendance/update/<int:attendance_id>/",UpdateAttendanceStatusAPIView.as_view(),name="update-attendance-status"),
 
-
+   path("tutor_view_students/<int:tutor_id>/", TutorViewStudentsAPIView.as_view(), name="tutor_view_students"),
 
    #guard
    #guard view approved leave requests

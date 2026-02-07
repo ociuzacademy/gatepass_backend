@@ -1,4 +1,7 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
+from django.contrib import messages
+from django.contrib.auth import logout as auth_logout
 from .models import *
 from gatepassapp.models import *
 # Create your views here.
@@ -22,7 +25,8 @@ def admin_hod_login(request):
                 request.session["admin_id"] = admin.id
                 request.session["role"] = "admin"
                 messages.success(request, "Admin login successful!")
-                return render(request, "adminapp/index.html", {"admin_email": admin.admin_email})
+                # redirect back to login page so template can show message, then JS will redirect to admin index
+                return redirect(f"{reverse('admin_hod_login')}?next={reverse('index')}")
             except tbl_admin.DoesNotExist:
                 messages.error(request, "Invalid admin credentials.")
                 return redirect("admin_hod_login")
@@ -33,7 +37,8 @@ def admin_hod_login(request):
                 request.session["hod_id"] = hod.id
                 request.session["role"] = "hod"
                 messages.success(request, "HOD login successful!")
-                return redirect("hod_index")
+                # redirect back to login page so template can show message, then JS will redirect to HOD index
+                return redirect(f"{reverse('admin_hod_login')}?next={reverse('hod_index')}")
             except tbl_hod.DoesNotExist:
                 messages.error(request, "Invalid HOD credentials.")
                 return redirect("admin_hod_login")
@@ -53,10 +58,19 @@ def index(request):
 
 
 def logout(request):
-    if request.session.has_key('id'):
-        del request.session['id']
-        logout(request)
-    return render(request,'login.html')
+    # Clear any custom session keys we use for auth
+    for k in ("admin_id", "hod_id", "role", "id"):
+        if k in request.session:
+            del request.session[k]
+
+    # Also call Django's auth logout to be safe
+    try:
+        auth_logout(request)
+    except Exception:
+        pass
+
+    messages.success(request, "You have been logged out.")
+    return redirect('admin_hod_login')
 
 
 from django.shortcuts import render, redirect

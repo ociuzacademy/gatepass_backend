@@ -99,6 +99,34 @@
       background: #e91e63;
       transform: translateY(-2px);
     }
+
+    /* Alerts */
+    .alert {
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      text-align: left;
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .alert.error {
+      background: rgba(255, 23, 68, 0.12);
+      border-left: 4px solid #ff1744;
+      color: #fff;
+    }
+
+    .alert.success {
+      background: rgba(0, 230, 118, 0.08);
+      border-left: 4px solid #00e676;
+      color: #fff;
+    }
+    .alert.hide {
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+    }
   </style>
 </head>
 
@@ -112,23 +140,30 @@
   <!-- LOGIN BOX -->
   <div class="glass-box">
     <h2>Login</h2>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
     <form method="post">
       {% csrf_token %}
 
       <select name="role" required onchange="toggleFields(this.value)">
         <option value="">-- Select Role --</option>
-        <option value="admin">Admin</option>
-        <option value="hod">HOD</option>
+        <option value="admin" {% if request.POST.role == "admin" %}selected{% endif %}>Admin</option>
+        <option value="hod" {% if request.POST.role == "hod" %}selected{% endif %}>HOD</option>
       </select>
 
       <div id="admin-fields" style="display:none;">
-        <input type="email" name="admin_email" placeholder="Admin Email">
+        <input type="email" name="admin_email" placeholder="Admin Email" value="{{ request.POST.admin_email }}">
         <input type="password" name="password" placeholder="Password">
       </div>
 
       <div id="hod-fields" style="display:none;">
-        <input type="email" name="hod_email" placeholder="HOD Email">
-        <input type="text" name="hod_id" placeholder="HOD ID">
+        <input type="email" name="hod_email" placeholder="HOD Email" value="{{ request.POST.hod_email }}">
+        <input type="text" name="hod_id" placeholder="HOD ID" value="{{ request.POST.hod_id }}">
       </div>
 
       <button type="submit">Login</button>
@@ -150,19 +185,13 @@
       if (role === "admin") {
         document
           .querySelectorAll("#admin-fields input")
-          .forEach(input => {
-            input.required = true;
-            input.value = "";
-          });
+          .forEach(input => input.required = true);
       }
 
       if (role === "hod") {
         document
           .querySelectorAll("#hod-fields input")
-          .forEach(input => {
-            input.required = true;
-            input.value = "";
-          });
+          .forEach(input => input.required = true);
       }
     }
 
@@ -170,6 +199,31 @@
       const roleSelect = document.querySelector('select[name="role"]');
       toggleFields(roleSelect.value);
     };
+
+    // Auto-hide messages after 5 seconds; if a success message exists and a `next` query param is present, redirect after 5s
+    (function () {
+      const alerts = Array.from(document.querySelectorAll('.alert'));
+      if (!alerts || alerts.length === 0) return;
+
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get('next');
+
+      // Hide alerts after 5s
+      setTimeout(() => {
+        alerts.forEach(a => {
+          a.classList.add('hide');
+          setTimeout(() => a.remove(), 700);
+        });
+      }, 5000);
+
+      // If there's a success alert and a next URL, navigate to it after 5s
+      const hasSuccess = alerts.some(a => a.classList.contains('success'));
+      if (hasSuccess && next) {
+        setTimeout(() => {
+          window.location.href = next;
+        }, 5000);
+      }
+    })();
   </script>
 
 </body>

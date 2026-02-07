@@ -760,6 +760,32 @@ class StudentJobApplicationsAPIView(APIView):
 
 
 
+class TutorViewStudentsAPIView(APIView):
+    """
+    Tutor views all students assigned to them
+    """
+
+    def get(self, request, tutor_id, *args, **kwargs):
+        students = tbl_student.objects.filter(tutor_id=tutor_id).order_by("name")
+        serializer = StudentProfileSerializer(students, many=True)
+        return Response({
+            "tutor_id": tutor_id,
+            "total_students": students.count(),
+            "students": serializer.data
+        }, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
