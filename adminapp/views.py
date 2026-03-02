@@ -757,7 +757,7 @@ def hod_view_requests(request):
         return redirect("admin_hod_login")  # redirect if not logged in
 
     # Filter requests forwarded to this HOD only
-    requests = StudentRequest.objects.filter(forwarded_to_hod=True, hod_id=hod_id)
+    requests = StudentRequest.objects.filter(forwarded_to_hod=True, hod_id=hod_id).order_by("-request_date", "-request_time")
 
     # Optional: filter by category (Urgent / Not Urgent)
     category_filter = request.GET.get("category")

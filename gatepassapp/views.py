@@ -157,7 +157,7 @@ class TutorStudentRequestsAPIView(APIView):
         # Optionally, you can filter by status if needed
         status_filter = request.query_params.get("status")
 
-        requests = StudentRequest.objects.filter(tutor_id=tutor_id).order_by("created_at")
+        requests = StudentRequest.objects.filter(tutor_id=tutor_id).order_by("-created_at")
 
         if status_filter:
             requests = requests.filter(status=status_filter)
