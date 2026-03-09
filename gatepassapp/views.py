@@ -591,104 +591,175 @@ import face_recognition
 import os
 from datetime import datetime
 from django.utils import timezone
+import os
+import numpy as np
+import face_recognition
+import cv2
+
+from django.utils import timezone
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+from .models import tbl_student, MarkAttendance
+from .serializers import MarkAttendanceSerializer
+
 
 class AttendanceAPIView(APIView):
     """
     POST an image to /userapp/api/mark-attendance/
-    This view now expects a 'student_id' in the request data to verify
-    that the face in the image matches the logged-in student's profile picture.
+
+    Required fields:
+    - student_id
+    - image
+
+    The API verifies whether the uploaded face matches the
+    student's profile image before marking attendance.
     """
 
     def post(self, request, format=None):
-        # 1. Get the student_id from the request data
-        student_id_from_request = request.data.get('student_id')
-        if not student_id_from_request:
-            return Response({"error": "Student ID is missing from the request."},
-                            status=status.HTTP_400_BAD_REQUEST)
 
-        # 2. Find the specific student using the provided student_id
+        # 1️⃣ Get student_id
+        student_id_from_request = request.data.get('student_id')
+
+        if not student_id_from_request:
+            return Response(
+                {"error": "Student ID is missing from the request."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 2️⃣ Find student
         try:
             student = tbl_student.objects.get(student_id=student_id_from_request)
         except tbl_student.DoesNotExist:
-            return Response({"error": "Student not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Student not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-        # 3. Load and encode the known face for this specific student
+        # 3️⃣ Check if student profile image exists
         if not student.image:
-            return Response({"error": "No profile image found for this student."},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "No profile image found for this student."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         img_path = student.image.path
+
         if not os.path.exists(img_path):
-            return Response({"error": "Student profile image file not found on server."},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": "Student profile image file not found on server."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-        known_img = cv2.imread(img_path)
-        if known_img is None:
-            return Response({"error": "Could not read student profile image."},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # 4️⃣ Load student profile image
+        try:
+            known_image = face_recognition.load_image_file(img_path)
+            known_encodings = face_recognition.face_encodings(known_image)
+        except Exception as e:
+            return Response(
+                {"error": f"Error processing student image: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-        known_img_rgb = cv2.cvtColor(known_img, cv2.COLOR_BGR2RGB)
-        known_encodings = face_recognition.face_encodings(known_img_rgb)
-        
         if not known_encodings:
-            return Response({"error": "Failed to create face encoding for the student's profile image."},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+            return Response(
+                {"error": "No face detected in student's profile image."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         known_encoding = known_encodings[0]
 
-        # 4. Process the uploaded image
+        # 5️⃣ Get uploaded image
         file_obj = request.FILES.get('image')
+
         if not file_obj:
-            return Response({"error": "No image uploaded."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "No image uploaded."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        file_bytes = np.frombuffer(file_obj.read(), np.uint8)
-        img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+        try:
+            file_bytes = np.frombuffer(file_obj.read(), np.uint8)
+            img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+        except Exception as e:
+            return Response(
+                {"error": f"Invalid image format: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         if img is None:
-            return Response({"error": "Invalid image file."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid image file."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
+        # Convert BGR → RGB
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        
-        # 5. Detect & encode faces in the uploaded photo
-        facesCurFrame = face_recognition.face_locations(img_rgb)
-        encodesCurFrame = face_recognition.face_encodings(img_rgb, facesCurFrame)
 
-        if not encodesCurFrame:
-            return Response({"message": "No faces detected in the uploaded image. Please try again."},
-                            status=status.HTTP_400_BAD_REQUEST)
+        # Ensure correct format
+        img_rgb = np.ascontiguousarray(img_rgb)
 
-        # 6. Compare the uploaded face with the student's known face
+        # 6️⃣ Detect faces
+        face_locations = face_recognition.face_locations(img_rgb)
+        face_encodings = face_recognition.face_encodings(img_rgb, face_locations)
+
+        if not face_encodings:
+            return Response(
+                {"message": "No faces detected in the uploaded image. Please try again."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 7️⃣ Compare faces
         match_found = False
-        for encodeFace in encodesCurFrame:
-            # Compare against the single known encoding
-            matches = face_recognition.compare_faces([known_encoding], encodeFace)
-            face_distance = face_recognition.face_distance([known_encoding], encodeFace)
+
+        for face_encoding in face_encodings:
+
+            matches = face_recognition.compare_faces([known_encoding], face_encoding)
+            face_distance = face_recognition.face_distance([known_encoding], face_encoding)
 
             if matches[0]:
-                # A match is found, mark attendance for this specific student
-                MarkAttendance.objects.get_or_create(
+
+                # Mark attendance
+                attendance_record, created = MarkAttendance.objects.get_or_create(
                     student=student,
                     date=timezone.now().date(),
-                    defaults={"status": "Present"} # Use defaults to only set on creation
+                    defaults={"status": "Present"}
                 )
+
+                # If already exists update status
+                if not created and attendance_record.status != "Present":
+                    attendance_record.status = "Present"
+                    attendance_record.save()
+
                 match_found = True
-                break  # Stop checking if a match is found
+                break
 
-        # 7. Return the appropriate response
+        # 8️⃣ Response
         if match_found:
-            attendance_record = MarkAttendance.objects.get(student=student, date=timezone.now().date())
+
+            attendance_record = MarkAttendance.objects.get(
+                student=student,
+                date=timezone.now().date()
+            )
+
             serializer = MarkAttendanceSerializer(attendance_record)
-            return Response({
-                "message": "Face detected and attendance marked successfully!",
-                "attendance": serializer.data
-            }, status=status.HTTP_200_OK)
+
+            return Response(
+                {
+                    "message": "Face detected and attendance marked successfully!",
+                    "attendance": serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+
         else:
-            return Response({
-                "message": "Face detected, but it does not match your profile picture. Please try again.",
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
+            return Response(
+                {
+                    "message": "Face detected, but it does not match your profile picture. Please try again."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 # views.py
 from rest_framework.views import APIView
